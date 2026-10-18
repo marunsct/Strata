@@ -32,6 +32,10 @@ inline bool gfx_arch_is_gfx12_wmma(const char* gcn) { return gfx_arch_is(gcn, "g
 /// Strix Halo (Ryzen AI Max, RDNA3.5): the part the gfx1151 defaults (docs/STRIX_HALO.md) are measured on.
 inline bool gfx_arch_is_gfx1151(const char* gcn) { return gfx_arch_is(gcn, "gfx1151"); }
 
+/// The RX 7900 XTX / XT (RDNA3, Navi 31): the part the opt-in gfx1100 profile (docs/RX7900XTX.md) is for.  Exactly
+/// gfx1100: the 7800 XT / 7700 XT (gfx1101) and 7600 (gfx1102) are not it.
+inline bool gfx_arch_is_gfx1100(const char* gcn) { return gfx_arch_is(gcn, "gfx1100"); }
+
 /// RDNA4 (Radeon AI PRO R9700 = gfx1201, RX 9070 / 9070 XT = gfx1201, RX 9060 = gfx1200).
 inline bool gfx_arch_is_gfx12(const char* gcn) { return gfx_arch_is(gcn, "gfx1200") || gfx_arch_is(gcn, "gfx1201"); }
 

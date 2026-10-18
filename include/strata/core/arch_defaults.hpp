@@ -8,6 +8,10 @@
 // STRATA_SELECT_WMMA, STRATA_HC_Q8: rounding-level, KL-gated) stay opt-in; docs/STRIX_HALO.md lists them.
 //
 // A switch the user set (to anything) is never overridden; STRATA_GFX1151_DEFAULTS=0 turns the whole table off.
+//
+// gfx1100 (RX 7900 XTX / XT) is the other way round: its table is EMPTY unless STRATA_GFX1100_DEFAULTS=1 (the prompt
+// half plus STRATA_SPLIT_OVERLAP, measured on 2x RX 7900 XTX) or =2 (plus the decode half) asks for it, because the
+// maintainers measured none of the exact switches on that card; docs/RX7900XTX.md says how to measure them.
 #pragma once
 
 #include <string>

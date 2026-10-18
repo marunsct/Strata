@@ -2151,6 +2151,13 @@ GFX1103_SWITCHES = {
 # same greedy answers with all 17 on and with all 17 off, decode +2% and prompts +3-6%.  The engine's arch defaults are not used
 # for gfx1150 (src/core/arch_defaults_test.cpp asserts gfx1150 stays empty), so this keeps the default path byte-identical.
 GFX1150_SWITCHES = dict(GFX1103_SWITCHES)
+# STRATA_GFX1100_DEFAULTS=1 or 2 in setup's environment (opt-in, docs/RX7900XTX.md): an RX 7900 XTX / XT (gfx1100) install
+# carries it into the config's "env", and the engine's arch profile (src/core/arch_defaults.cpp) then turns the switches on:
+# 1 = the prompt half above plus STRATA_SPLIT_OVERLAP (measured on 2x RX 7900 XTX, docs/MULTI_GPU.md), 2 = plus the decode
+# half.  Unset or 0: nothing is written and the default start stays byte-identical.  It is setup's own (SETUP_ENV): a setup
+# run without it takes it out again.  Measure it on your PC first: tools/hip/bench_gfx1100.py.
+GFX1100_PROFILE = os.environ.get("STRATA_GFX1100_DEFAULTS", "").strip()
+GFX1100_PROFILE = GFX1100_PROFILE if GFX1100_PROFILE in ("1", "2") else ""
 AMD_NAMES = {"gfx1100": "AMD Radeon RX 7900 series (gfx1100)",   # when sysfs has no product name
              "gfx1101": "AMD Radeon RX 7800 XT / 7700 XT (gfx1101)",
              "gfx1102": "AMD Radeon RX 7600 / 7600 XT (gfx1102)",
@@ -4523,7 +4530,7 @@ def write_config(path: Path, cfg: dict):
 SETUP_KEYS = frozenset({"exe", "args", "cwd", "tokenizer", "model_name", "log", "lib_dirs", "port", "backend", "env",
                         "gpu", "gpus_asked", "layer_split", "host", "api_key", "draft_vocab", "vision"})
 SETUP_ENV = frozenset({"STRATA_HIPBLASLT_TUNING", "STRATA_ROCBLAS_TUNING", "STRATA_RESIDENT_PIN", "STRATA_NO_ARENA_THP", "STRATA_MMQ_KQ", "STRATA_HC_Q8",
-                       "STRATA_ROUTE_TAIL_SKIP"}) | frozenset(GFX1103_SWITCHES) | frozenset(GFX1150_SWITCHES)   # the "env" entries setup writes (the gfx1103 switches are setup's too: a re-run refreshes them, they do not linger)
+                       "STRATA_ROUTE_TAIL_SKIP", "STRATA_GFX1100_DEFAULTS"}) | frozenset(GFX1103_SWITCHES) | frozenset(GFX1150_SWITCHES)   # the "env" entries setup writes (the gfx1103 switches are setup's too: a re-run refreshes them, they do not linger)
 # 0.1.44 added these three, written for Unsloth's files only (unsloth_default_env).  In any other model's config they are the
 # user's own (STRATA_ROUTE_TAIL_SKIP=0 to turn the tail skip off, STRATA_MMQ_KQ=1 ...): a setup run again keeps them there
 # (0.1.44 dropped them with the rest of SETUP_ENV).
@@ -7023,8 +7030,13 @@ def main() -> int:
         # prompt speed on the 7900 XTX): only a table for this card's arch AND the installed hipBLASLt version (the
         # engine refuses any other one and falls back to plain hipBLAS)
         table = hipblaslt_table(gpu["arch"], lib_dirs, meta.get("hipblaslt_version"))
-        if table:
-            cfg["env"] = {"STRATA_HIPBLASLT_TUNING": str(table)}
+        if table:   # beside the Unsloth entries (unsloth_default_env), which this used to replace on HIP
+            cfg.setdefault("env", {})["STRATA_HIPBLASLT_TUNING"] = str(table)
+        if GFX1100_PROFILE and gfx_arch_is(gpu["arch"], "gfx1100") and not WIN:
+            # the opt-in RX 7900 profile (GFX1100_PROFILE): the engine reads the variable and turns its switches on
+            cfg.setdefault("env", {})["STRATA_GFX1100_DEFAULTS"] = GFX1100_PROFILE
+            ok(f"RX 7900 (gfx1100) speed profile STRATA_GFX1100_DEFAULTS={GFX1100_PROFILE} written into the config "
+               "(opt-in, docs/RX7900XTX.md; a setup run without the variable takes it out)")
         if GFX1103_OPT_IN and gfx_arch_is(gpu["arch"], "gfx1103") and not WIN:
             # the 780M's KFD queues are evicted (a GPU reset) while transparent huge pages move the pinned expert arena
             cfg.setdefault("env", {})["STRATA_NO_ARENA_THP"] = "1"

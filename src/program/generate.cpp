@@ -2639,8 +2639,9 @@ int main(int argc, char** argv) {
         }
     }
 #if defined(STRATA_USE_HIP)
-    {   // gfx1151 (Strix Halo): the switches that are exact there are on by default (strata/core/arch_defaults.hpp); before
-        // any engine code reads its switches (they are read at first use), and the user's own settings are kept
+    {   // gfx1151 (Strix Halo) and gfx12: the switches that are exact there are on by default (strata/core/arch_defaults.hpp);
+        // gfx1100 (RX 7900) gets its profile only with STRATA_GFX1100_DEFAULTS (docs/RX7900XTX.md).  Before any engine code
+        // reads its switches (they are read at first use), and the user's own settings are kept
         cudaDeviceProp ad{};
         if (cudaGetDeviceProperties(&ad, 0) == cudaSuccess) strata::core::apply_arch_defaults(ad.gcnArchName);
         else (void) cudaGetLastError();

@@ -235,6 +235,7 @@ KV, layers 0-25 / 26-47; 512-token greedy answers, median of 8 runs:
 
 Greedy output is byte-identical with the flag at 0 and 1; the quiz set scored the same (47/51). Not measured on
 NVIDIA yet, where a sync and a graph launch cost less.
+`STRATA_GFX1100_DEFAULTS=1` (opt-in, [RX7900XTX.md](RX7900XTX.md)) sets it on gfx1100 along with the exact prompt switches.
 
 The reading stage's wait for the flag is bounded on the GPU: `STRATA_SPLIT_WAIT_MS` (default 30000, 0 = no bound).
 If the flag does not arrive in time, the wait marks an error word and returns, the window's graph completes, and the

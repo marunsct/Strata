@@ -17,6 +17,9 @@ An optional, calibrated hipBLASLt path accelerates dense projections (per-archit
 This does not claim bit-identical model answers across backends. See
 [performance settings and evidence](AMD_HIP_PERFORMANCE.md).
 
+**RX 7900 XTX / XT owners:** [RX7900XTX.md](RX7900XTX.md) collects this card's measured settings, the opt-in
+`STRATA_GFX1100_DEFAULTS` profile, the two-card x16 + x4 notes and the A/B script.
+
 ## Install with setup (recommended)
 
 On Linux with an RX 7900 XT / XTX, RX 7800 XT / 7700 XT, RX 9060 XT, RX 9070 / 9070 XT or Radeon AI PRO R9700 and
