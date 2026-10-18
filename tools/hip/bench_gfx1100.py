@@ -22,7 +22,9 @@ Two or more cards (a layer split):
   base        the config as it is (serial hand-off)
   overlap     STRATA_SPLIT_OVERLAP=1      measured on 2x RX 7900 XTX: decode +32% code / +24% prose, same bytes
   p1 / p2     as above (p1 includes the overlap)
-  pw2         --pipeline-windows 2        the gfx12 default loop; the engine turns the overlap off beside it
+  pw2         --pipeline-windows 2 + STRATA_MTP_STAGE0=1   the gfx12 default loop with the draft layer on the first card
+              (without that, two stages lost to the serial loop on 2x R9700; needs the pack's draft_vocab.bin); the engine
+              turns the overlap off beside it
   uniform     STRATA_SPLIT_UNIFORM=1      every link priced the same under "auto" (for an x16 + x4 pair)
   trim        STRATA_STAGE_TRIM=1         each card loads only its layers' dense weights - only with a numeric
               "layer_split" in the config; a card then holds more experts, so the text can differ
@@ -49,7 +51,7 @@ SPLIT = [
     ("overlap", "STRATA_SPLIT_OVERLAP=1"),
     ("p1", "STRATA_GFX1100_DEFAULTS=1"),
     ("p2", "STRATA_GFX1100_DEFAULTS=2"),
-    ("pw2", "xargs=--pipeline-windows;2"),
+    ("pw2", "STRATA_MTP_STAGE0=1,xargs=--pipeline-windows;2"),
     ("uniform", "STRATA_SPLIT_UNIFORM=1"),
     ("trim", "STRATA_STAGE_TRIM=1"),
 ]

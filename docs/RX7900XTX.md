@@ -96,7 +96,8 @@ cards once per verify window, a few hundred KB through pinned RAM, so the x4 lin
    IQ3_XXS, 128K context, int8 KV, layers 0-25 / 26-47, median of 8): decode 53 -> 70.1 tok/s on a code prompt and 45 -> 55.9 on prose,
    byte-identical output ([MULTI_GPU.md](MULTI_GPU.md#overlapped-hand-off-strata_split_overlap1-opt-in)). One card alone was ~70 / ~68, so with the
    overlap the pair decodes like one card and reads prompts faster.
-4. **The pipelined loop (`pw2`).** `--pipeline-windows 2` is the default on gfx12 splits and measured +14-27% decode on 4x RX 7900 XT
+4. **The pipelined loop (`pw2`).** `--pipeline-windows 2` **with `STRATA_MTP_STAGE0=1`** (the draft layer on the first card; on two stages without it the
+   pipeline lost to the serial loop on 2x R9700, and on gfx1100 the engine does not move it by itself) is the default on gfx12 splits and measured +14-27% decode on 4x RX 7900 XT
    (gfx1100, every expert in VRAM). It and the overlap are two ways to hide the same wait; the engine turns the overlap off beside the
    pipeline and says so. Which wins on two 7900 XTX is not measured: that is the `overlap` against `pw2` comparison.
 5. **More experts per card (`trim`).** `STRATA_STAGE_TRIM=1` loads each card only its layers' dense weights (~3.4 GB freed per card for the
